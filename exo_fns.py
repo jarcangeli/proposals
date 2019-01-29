@@ -11,6 +11,30 @@ def convert_radec(RAh, RAm, RAs, Decd, Decm, Decs):
     Dec = Decd + Decm/60. + Decs/60./60.
     return RA, Dec
 
+# Loading tables
+def download_tepcat(save_dir='./'):
+
+    import urllib2
+    response = urllib2.urlopen('http://www.astro.keele.ac.uk/jkt/tepcat/allplanets-csv.csv')
+    allplanets = response.read()
+
+    response = urllib2.urlopen('http://www.astro.keele.ac.uk/jkt/tepcat/observables.csv')
+    observables = response.read()
+
+    with open(save_dir+'allplanets-tepcat.csv', 'wb') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',',)
+        for line in allplanets.split('\n'):
+            if not line.strip() == '':
+                writer.writerow([ el.strip() for el in line.split(',') ])
+    print('Downloaded system parameters, \"Well-studied transiting planets\"')
+            
+    with open(save_dir+'observables_tepcat.csv', 'wb') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',',)
+        for line in observables.split('\n'):
+            if not line.strip() == '':
+                writer.writerow([ el.strip() for el in line.split(',') ])
+    print('Downloaded magnitudes, \"For planning observations\"')
+
 # Planet Dictionary
 def get_planet(name, od):
     try:
