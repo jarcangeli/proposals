@@ -164,6 +164,7 @@ def get_tepcat_planets(bands_2mass=['J','H','K'], TESS=False):
 
 
 # TESS
+# or use website https://heasarc.gsfc.nasa.gov/cgi-bin/tess/webtess/wtv.py
 def get_TESS_obs(od):
     tempfname = '_coords.dat'
     # Make a file of all RA, Decs
