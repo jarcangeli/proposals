@@ -46,6 +46,25 @@ def get_planet(name, od):
         planet = { var: arr[ind] for (var, arr) in od.items() }
     return planet
 
+def print_planet(name, od):
+    
+    planet = get_planet(name, od)
+    keys = planet.keys()
+    lkey = max([len(key) for key in keys])
+    keys.remove('System')
+    print '-'*len(planet['System'])
+    print planet['System']
+    print '-'*len(planet['System'])
+    
+    keyorder = ['M_b', 'R_b', 'g_b', 'Teq', 'TEQ', 'SH', 'Vmag', 'Kmag', 'a(AU)', 'Period', 'e', 
+                    'M_A', 'R_A', 'g', 'Teff', '[Fe/H]', 'RA', 'Dec']
+    for key in keyorder:
+        if key in keys:
+            print key.rjust(lkey), '\t', planet[key]
+    for key in keys: 
+        if not key in keyorder:
+            print key.rjust(lkey), '\t', planet[key]
+
 def read_exodata(csv_file='allplanets-tepcat.csv'):
     '''
     Read in csv file from TEPCat
@@ -255,7 +274,7 @@ def plot_html(od, xname='M_b', yname='R_b', zname=None, z_range=None, size=8, fn
 
 # Tables 
 
-def csv_arrays(fname, od, keys, names=None, units=['-'], formats=['{}'], sort='System', reverse=True, finite=True):
+def csv_arrays(fname, od, keys, names=None, units=['-'], formats=['{}'], sort='System', reverse=True, finite=True, nomin1=True):
     if names is None: names=keys
     with open(fname, 'w') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=keys)
@@ -278,7 +297,10 @@ def csv_arrays(fname, od, keys, names=None, units=['-'], formats=['{}'], sort='S
             
             if finite: # ensure valus are finite
                 if not np.all([np.isfinite(val) for val in vals if type(val) is not str]): continue 
-                    
+                        
+            if nomin1: # ensure values are not = -1
+                if not np.all([val != -1 for val in vals if type(val) is not str]): continue 
+                       
             row = {}
             for key, form in zip(keys, formats): row[key] = form.format(planet[key])
             writer.writerow(row)
@@ -288,8 +310,8 @@ def csv_arrays(fname, od, keys, names=None, units=['-'], formats=['{}'], sort='S
 
 def calc_eq_temp(a, Ts, Rs, A=0, f_redist=2.):
     '''Assume parameters in SI units'''
-    # f_redist = 2 for no redistribution
-    # f_redist = 1 for full day-night redistribution
+    # f_redist = 1 for no redistribution
+    # f_redist = 2 for full day-night redistribution
     return np.sqrt(np.divide(Rs,a)/f_redist)*Ts*(2**0.25) * (1-A)**0.25
 
 def calc_surface_g(M, R):
